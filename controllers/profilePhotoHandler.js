@@ -1,21 +1,12 @@
-const fs = require('fs');
-const uuid = require('uuid').v4;
-
+//this handles uploading file to localdisk
 const uploadPhotoToLocal = (req, res) => {
-  console.log(req.file);
-  res.send('save to local ');
-  const id = req.params.id;
-  const file = req.file;
-  if(!id) id = uuid();
 
-  if(!file) res.status(504).send('Select a file!');
-
-  const photoPath = fs.readFileSync(req.file.path);
-  const encodedPhoto = photoPath.toString('base64');
-  const finalPhoto = {
-    contentType:req.file.mimetype,
-    image: new Buffer(encodedPhoto,'base64')
-};
+  console.log(req.validationError);
+  if(req.validationError) {
+    res.status(404).send({ error: req.validationError });
+    return;
+  }
+  res.send(req.file);
 
 }
 
