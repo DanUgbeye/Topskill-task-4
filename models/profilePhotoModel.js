@@ -2,10 +2,11 @@ const { string } = require('joi');
 const mongoose = require('mongoose');
 
 const profilePhotoSchema = new mongoose.Schema({
-  id: String,
-  photo: String
+  '_id': String,
+  'photoURL': String,
+  'location': String
 });
 
-const profilePhotoModel = mongoose.Model('user', profilePhotoSchema);
+const profilePhotoModel = mongoose.model('user', profilePhotoSchema);
 
 module.exports =  profilePhotoModel;

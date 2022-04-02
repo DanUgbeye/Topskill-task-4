@@ -3,11 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
-const cloudinary = require('cloudinary');
 const { profilePhotoRouter } = require('./routes/profilePhotoRouter');
-const {dbConnection} = require('./database');
-
-
+const { dbConnection } = require('./utils/database');
 
 const app = express();
 app.use(cors());
@@ -18,13 +15,10 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.use('/profile', profilePhotoRouter);
 
-cloudinary.config({ 
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-  api_key: process.env.CLOUDINARY_API_KEY, 
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
 const conn = dbConnection();
+
+// const uuid = require('uuid').v4;
+// console.log(uuid());
 
 conn
 .then( () => {
