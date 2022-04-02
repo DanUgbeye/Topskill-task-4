@@ -11,7 +11,6 @@ const localStorage = multer.diskStorage({
   },
   
   filename: (req, file, callback) => {
-    // console.log(file);
     callback(null, `${ file.id }.${file.extension}`);
   }
 });
@@ -28,7 +27,6 @@ const cloudStorage = new CloudinaryStorage({
 //this checks the uploaded filetype 
 const photoFilter = (req, file, callback) => {
 
-  // console.log(file);uuid();
   const id = req.params.id;
   file.id = id;
   let photoExt;
@@ -62,8 +60,6 @@ const photoFilter = (req, file, callback) => {
     callback(null, true);
   }
 };
-
-
 
 const uploadLocal = multer({ storage: localStorage, fileFilter: photoFilter });
 const uploadCloud = multer({ storage: cloudStorage, fileFilter: photoFilter });

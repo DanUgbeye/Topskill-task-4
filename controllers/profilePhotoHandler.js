@@ -1,6 +1,5 @@
 const profilePhotoModel = require("../models/profilePhotoModel");
 const { cloudinary } = require("../utils/cloudinary");
-// const path = require('path');
 const fs = require('fs');
 
 //this handles uploading file to localdisk
@@ -34,7 +33,7 @@ const uploadPhotoToLocal = async (req, res) => {
 
 }
 
-//handles deleting a photo
+//handles deleting a photo from both local and cloud
 const deletePhoto = async (req, res) => {
 
   try {
@@ -44,11 +43,9 @@ const deletePhoto = async (req, res) => {
       res.status(404).send({ error: 'no id provided!' });
       return;
     }
-    
-    //check if file id exists on db
-    const resp = await profilePhotoModel.findById(id);
-    // console.log(resp);
 
+    //check if file id exists on db
+    const resp = await profilePhotoModel.findByIdAndRemove(id);
     if(!resp) {
       res.status(404).send({ error: 'invalid id provided' });
       return;
@@ -58,23 +55,25 @@ const deletePhoto = async (req, res) => {
     if(resp.location === 'cloud') {
       // const {resources} = await cloudinary.search.expression(`folder:Topskill AND filename:${id} AND resource_type:image`).execute();
       const result = await cloudinary.uploader.destroy(`Topskill/${id}`);
-      // if no result is gotten
+      // if no result is gotten from cloudinary API
       if(!result) {
         res.status(504).send({ error: 'delete operation failed' });
         return;
       }
       //if a result is gotten
-      res.send(result);
+      res.send({...result, message: 'delete photo from cloud successful'});
       return;
     }
     //if the file was saved locally
     else if(resp.location === 'local') {
+      // deleting the file
       fs.unlink(resp.photoURL, (error) => {
         if(error){
+          //if an error occurs when deleting the file
           res.status(404).send({ error: error });
           return;
         }
-        res.send({ 'status': 'ok' });
+        res.send({ status: 'ok', message: 'deleted from local successfully' });
       });
     }
 
@@ -101,12 +100,11 @@ const uploadPhotoToCloud = async (req, res) => {
     res.send(profilePhoto);
   
   } catch (error) {
-    // console.log(error);
-    res.status(404).send({ error: error})
+    //delete cloud file if an error occured saving to db
+    await cloudinary.uploader.destroy(`Topskill/${req.file.id}`);
+    res.status(404).send({ error: error});
   }
 }
-
-
 
 module.exports = {
   uploadPhotoToLocal,
